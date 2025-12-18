@@ -31,20 +31,29 @@
             pointer-events: none;
             z-index: 10;
         }
-        iframe {
+        #iframe-wrapper {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
-            height: calc(100% - 50px);
-            border: none;
+            height: calc(100% - 150px); /* 減少 iframe 高度，為下方的分數顯示區域留出空間 */
             z-index: 1; /* 確保 iframe 在 canvas 下方 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        iframe {
+            width: 90%;
+            height: 90%;
+            border: none;
         }
     </style>
 </head>
  <body>
     <!-- p5.js 的 canvas 會由 sketch.js 自動創建並疊加在最上層 -->
-    <iframe src="pr_test01.html" id="h5p-iframe"></iframe>
+    <div id="iframe-wrapper">
+        <iframe src="pr_test01.html" id="h5p-iframe"></iframe>
+    </div>
 </body>
 
 </html>
