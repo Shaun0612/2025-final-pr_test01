@@ -40,20 +40,21 @@ window.addEventListener('message', function (event) {
 
 function setup() { 
     // ... (其他設置)
-    createCanvas(windowWidth / 2, windowHeight / 2); 
-    background(255); 
+    createCanvas(windowWidth, windowHeight); 
+    clear(); // 使用透明背景，才不會遮擋下方的 H5P 內容
     noLoop(); // 如果您希望分數只有在改變時才繪製，保留此行
 } 
 
 // score_display.js 中的 draw() 函數片段
 
 function draw() { 
-    background(255); // 清除背景
+    clear(); // 清除上一幀的內容，保持透明
 
     // 計算百分比
-    let percentage = (finalScore / maxScore) * 100;
+    let percentage = maxScore > 0 ? (finalScore / maxScore) * 100 : 0;
+    let bottomY = height - 50; // 設定底部基準線
 
-    textSize(80); 
+    textSize(32); 
     textAlign(CENTER);
     
     // -----------------------------------------------------------------
@@ -62,47 +63,54 @@ function draw() {
     if (percentage >= 90) {
         // 滿分或高分：顯示鼓勵文本，使用鮮豔顏色
         fill(0, 200, 50); // 綠色 [6]
-        text("恭喜！優異成績！", width / 2, height / 2 - 50);
+        text("恭喜！優異成績！", width / 2, bottomY - 80);
         
     } else if (percentage >= 60) {
         // 中等分數：顯示一般文本，使用黃色 [6]
         fill(255, 181, 35); 
-        text("成績良好，請再接再厲。", width / 2, height / 2 - 50);
+        text("成績良好，請再接再厲。", width / 2, bottomY - 80);
         
     } else if (percentage > 0) {
         // 低分：顯示警示文本，使用紅色 [6]
         fill(200, 0, 0); 
-        text("需要加強努力！", width / 2, height / 2 - 50);
+        text("需要加強努力！", width / 2, bottomY - 80);
         
     } else {
         // 尚未收到分數或分數為 0
         fill(150);
-        text(scoreText, width / 2, height / 2);
+        // text(scoreText, width / 2, bottomY - 80); // 初始狀態可選擇不顯示文字以免遮擋
     }
 
     // 顯示具體分數
-    textSize(50);
+    textSize(24);
     fill(50);
-    text(`得分: ${finalScore}/${maxScore}`, width / 2, height / 2 + 50);
+    text(`得分: ${finalScore}/${maxScore}`, width / 2, bottomY - 40);
     
     
     // -----------------------------------------------------------------
     // B. 根據分數觸發不同的幾何圖形反映 (畫面反映二)
     // -----------------------------------------------------------------
     
+    // 將圖形也移到底部附近，避免遮擋主要內容
     if (percentage >= 90) {
         // 畫一個大圓圈代表完美 [7]
         fill(0, 200, 50, 150); // 帶透明度
         noStroke();
-        circle(width / 2, height / 2 + 150, 150);
+        circle(width / 2, bottomY - 150, 100);
         
     } else if (percentage >= 60) {
         // 畫一個方形 [4]
         fill(255, 181, 35, 150);
+        noStroke();
         rectMode(CENTER);
-        rect(width / 2, height / 2 + 150, 150, 150);
+        rect(width / 2, bottomY - 150, 100, 100);
     }
     
     // 如果您想要更複雜的視覺效果，還可以根據分數修改線條粗細 (strokeWeight) 
     // 或使用 sin/cos 函數讓圖案的動畫效果有所不同 [8, 9]。
+}
+
+function windowResized() {
+    resizeCanvas(windowWidth, windowHeight);
+    redraw();
 }
