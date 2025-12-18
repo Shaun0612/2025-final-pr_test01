@@ -5,10 +5,6 @@
     <meta charset="UTF-8">
     <title>Pr界面小測驗</title>
     
-    <!-- 引入 p5.js 函式庫 -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.js"></script> 
-
-
     <script src="libraries/p5.min.js"></script>
     <script src="libraries/p5.sound.min.js"></script>
     <!-- 引入您的分數顯示邏輯 (必須在 p5.js 之後載入) -->
@@ -19,11 +15,8 @@
         /* 讓內容置中方便查看 */
         body { 
             margin: 0; 
-            display: flex; 
-            flex-direction: column;
-            align-items: center; 
+            padding: 0;
             height: 100vh; 
-            font-family: Arial, sans-serif;
             overflow: hidden;
         }
         #h5pContainer {
@@ -38,44 +31,20 @@
             pointer-events: none;
             z-index: 10;
         }
+        iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+            z-index: 1; /* 確保 iframe 在 canvas 下方 */
+        }
     </style>
 </head>
  <body>
-        <div style="margin: 20px 20px;display: flex; justify-content: center;">
-            <div
-                style="max-width:1100px;"
-                class="h5p-content lag" data-content-id="3054689828"></div>        
-        </div>
-        
-        <script>
-    
-    // 確保 H5P 和外部事件派發器已加載
-        if (H5P && H5P.externalDispatcher) {
-
-        H5P.externalDispatcher.on('xAPI', function(event) {
-
-            // 檢查事件是否包含分數信息（通常是 'completed' 或 'answered' 類型）
-            if (event.getScore() !== undefined && event.getMaxScore() > 0) {
-
-                const scoreData = {
-                    type: 'H5P_SCORE_RESULT',
-                    score: event.getScore(),
-                    maxScore: event.getMaxScore()
-                };
-
-                // 使用 postMessage API 將分數傳遞給父層窗口
-                // ！！！安全性提示：請將 'https://your-parent-domain.com' 替換為您的主網頁網域
-                window.parent.postMessage(scoreData, 'https://shaun0612.github.io/2025-final-pr_test01/');
-
-                console.log('H5P 分數已發送給父層。');
-            }
-        });
-
-    } else {
-        console.error('H5P 事件派發器未找到，無法追蹤分數。');
-    }
-</script>      
-    </body>
+    <!-- p5.js 的 canvas 會由 sketch.js 自動創建並疊加在最上層 -->
+    <iframe src="pr_test01.html" id="h5p-iframe"></iframe>
+</body>
 
 </html>
-
