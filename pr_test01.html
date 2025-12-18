@@ -54,6 +54,28 @@ H5P.RequestQueue=function(i,t){function e(e){t.call(this),this.processingQueue=!
             <div
                 style="max-width:1400px;"
                 class="h5p-content lag" data-content-id="897718423"></div>        
-        </div>        
+        </div>
+        <script>
+            // 確保 H5P 物件和 jQuery 都已載入
+            (function ($) {
+                $(function () {
+                    // 確保 H5P 和其外部事件派發器可用
+                    if (H5P && H5P.externalDispatcher) {
+                        H5P.externalDispatcher.on('xAPI', function (event) {
+                            // 檢查事件是否為 'completed' 或 'answered' 類型，並包含分數
+                            if (event.getScore() !== undefined && event.getMaxScore() > 0) {
+                                const scoreData = {
+                                    type: 'H5P_SCORE_RESULT',
+                                    score: event.getScore(),
+                                    maxScore: event.getMaxScore()
+                                };
+                                // 使用 postMessage API 將分數傳遞給父層 (index.html)
+                                window.parent.postMessage(scoreData, '*');
+                            }
+                        });
+                    }
+                });
+            })(H5P.jQuery);
+        </script>
     </body>
-</html>
+    </html>
