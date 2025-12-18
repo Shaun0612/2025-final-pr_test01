@@ -52,7 +52,7 @@ function draw() {
 
     // 計算百分比
     let percentage = maxScore > 0 ? (finalScore / maxScore) * 100 : 0;
-    let bottomY = height - 20; // 設定底部基準線
+    let bottomY = height + 100; // 設定底部基準線
 
     textSize(32); 
     textAlign(CENTER);
