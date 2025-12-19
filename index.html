@@ -1,59 +1,118 @@
+// =================================================================
+// 步驟一：模擬成績數據接收
+// -----------------------------------------------------------------
 
-<!DOCTYPE html>
-<html lang="zh-TW">
-<head>
-    <meta charset="UTF-8">
-    <title>Pr界面小測驗</title>
-    
-    <script src="libraries/p5.min.js"></script>
-    <script src="libraries/p5.sound.min.js"></script>
-    <!-- 引入您的分數顯示邏輯 (必須在 p5.js 之後載入) -->
-    <!-- 確保 JS 檔案載入順序正確，以讓變數作用於全域範圍 [4] -->
-    <script src="sketch.js"></script>
-    
-    <style>
-        /* 讓內容置中方便查看 */
-        body { 
-            margin: 0; 
-            padding: 0;
-            height: 100vh; 
-            overflow: hidden;
-        }
-        #h5pContainer {
-            width: 100%;
-            flex: 1;
-        }
-        /* p5.js Canvas 會自動創建在 body 內 */
-        canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            pointer-events: none;
-            z-index: 10;
-        }
-        #iframe-wrapper {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: calc(100% - 25px); /* 減少 iframe 高度，為下方的分數顯示區域留出空間 */
-            z-index: 1; /* 確保 iframe 在 canvas 下方 */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-    </style>
-</head>
- <body>
-    <!-- p5.js 的 canvas 會由 sketch.js 自動創建並疊加在最上層 -->
-    <div id="iframe-wrapper">
-        <iframe src="pr_test01.html" id="h5p-iframe"></iframe>
-    </div>
-</body>
 
-</html>
+// let scoreText = "成績分數: " + finalScore + "/" + maxScore;
+// 確保這是全域變數
+let finalScore = 0; 
+let maxScore = 0;
+let scoreText = ""; // 用於 p5.js 繪圖的文字
+
+
+window.addEventListener('message', function (event) {
+    // 執行來源驗證...
+    // ...
+    const data = event.data;
+    
+    if (data && data.type === 'H5P_SCORE_RESULT') {
+        
+        // !!! 關鍵步驟：更新全域變數 !!!
+        finalScore = data.score; // 更新全域變數
+        maxScore = data.maxScore;
+        scoreText = `最終成績分數: ${finalScore}/${maxScore}`;
+        
+        console.log("新的分數已接收:", scoreText); 
+        
+        // ----------------------------------------
+        // 關鍵步驟 2: 呼叫重新繪製 (見方案二)
+        // ----------------------------------------
+        if (typeof redraw === 'function') {
+            redraw(); 
+        }
+    }
+}, false);
+
+
+// =================================================================
+// 步驟二：使用 p5.js 繪製分數 (在網頁 Canvas 上顯示)
+// -----------------------------------------------------------------
+
+function setup() { 
+    // ... (其他設置)
+    createCanvas(windowWidth, windowHeight); 
+    clear(); // 使用透明背景，才不會遮擋下方的 H5P 內容
+    noLoop(); // 如果您希望分數只有在改變時才繪製，保留此行
+} 
+
+// score_display.js 中的 draw() 函數片段
+
+function draw() { 
+    clear(); // 清除上一幀的內容，保持透明
+
+    // 計算百分比
+    let percentage = maxScore > 0 ? (finalScore / maxScore) * 100 : 0;
+    let bottomY = height; // 調整基準線，確保分數能完整顯示在視窗內
+
+    // 優化：根據視窗寬度動態調整文字大小 (介於 18 到 32 之間)
+    let mainTextSize = constrain(width / 25, 18, 32);
+    textSize(mainTextSize); 
+    textAlign(CENTER);
+    
+    // -----------------------------------------------------------------
+    // A. 根據分數區間改變文本顏色和內容 (畫面反映一)
+    // -----------------------------------------------------------------
+    if (percentage >= 90) {
+        // 滿分或高分：顯示鼓勵文本，使用鮮豔顏色
+        fill(0, 200, 50); // 綠色 [6]
+        text("恭喜！優異成績！", width / 2, bottomY - 80);
+        
+    } else if (percentage >= 60) {
+        // 中等分數：顯示一般文本，使用黃色 [6]
+        fill(255, 181, 35); 
+        text("成績良好，請再接再厲。", width / 2, bottomY - 80);
+        
+    } else if (percentage > 0) {
+        // 低分：顯示警示文本，使用紅色 [6]
+        fill(200, 0, 0); 
+        text("需要加強努力！", width / 2, bottomY - 80);
+        
+    } else {
+        // 尚未收到分數或分數為 0
+        fill(150);
+        // text(scoreText, width / 2, bottomY - 80); // 初始狀態可選擇不顯示文字以免遮擋
+    }
+
+    // 顯示具體分數
+    textSize(mainTextSize * 0.75); // 讓分數文字比主標題稍小
+    fill(50);
+    text(`得分: ${finalScore}/${maxScore}`, width / 2, bottomY - 40);
+    
+    
+    // -----------------------------------------------------------------
+    // B. 根據分數觸發不同的幾何圖形反映 (畫面反映二)
+    // -----------------------------------------------------------------
+    
+    // 將圖形也移到底部附近，避免遮擋主要內容
+    if (percentage >= 90) {
+        // 畫一個大圓圈代表完美 [7]
+        fill(0, 200, 50, 150); // 帶透明度
+        noStroke();
+        circle(width / 2, bottomY - 150, 100);
+        
+    } else if (percentage >= 60) {
+        // 畫一個方形 [4]
+        fill(255, 181, 35, 150);
+        noStroke();
+        rectMode(CENTER);
+        rect(width / 2, bottomY - 150, 100, 100);
+    }
+    
+    // 如果您想要更複雜的視覺效果，還可以根據分數修改線條粗細 (strokeWeight) 
+    // 或使用 sin/cos 函數讓圖案的動畫效果有所不同 [8, 9]。
+}
+
+function windowResized() {
+    resizeCanvas(windowWidth, windowHeight);
+    redraw();
+}
